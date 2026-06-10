@@ -1,0 +1,6 @@
+{
+  "name": "Abdulrahman Alburaym Portfolio",
+  "description": "A high-end, futuristic CLI developer portfolio in a bento-style design for Abdulrahman Alburaym, specializing in Full-stack & AI.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,104 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #050505;
+  --color-bg-card: #0a0a0a;
+  --color-bg-card-hover: #0f0f0f;
+  --color-matrix: #0F0;
+  --color-emerald: #00C853;
+  --color-matrix-dim: #0a6e0a;
+  --color-emerald-dim: #006e2f;
+  --color-text: #c8c8c8;
+  --color-text-dim: #5a5a5a;
+  --color-border: #1a1a1a;
+  --color-border-glow: #0F0;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --font-terminal: 'VT323', monospace;
+}
+
+* {
+  cursor: none !important;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  overflow-x: hidden;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-matrix-dim);
+  border-radius: 0;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-matrix);
+}
+
+::selection {
+  background: var(--color-matrix);
+  color: var(--color-bg);
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+@keyframes scan-line {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+@keyframes blink-cursor {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+@keyframes glint {
+  0% { transform: translateX(-100%); }
+  20% { transform: translateX(200%); }
+  100% { transform: translateX(200%); }
+}
+
+.card-glow {
+  transition: all 0.3s ease;
+  border: 1px solid var(--color-border);
+}
+.card-glow:hover {
+  border-color: var(--color-matrix);
+  box-shadow: 0 0 15px rgba(0, 255, 0, 0.08), inset 0 0 15px rgba(0, 255, 0, 0.03);
+}
+
+.glint-effect::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0, 255, 0, 0.06), transparent);
+  animation: glint 4s ease-in-out infinite;
+}
+
+.cursor-blink {
+  animation: blink-cursor 1s step-end infinite;
+}
+
+.text-glow {
+  text-shadow: 0 0 10px rgba(0, 255, 0, 0.4), 0 0 20px rgba(0, 255, 0, 0.2);
+}
+
+.text-glow-strong {
+  text-shadow: 0 0 15px rgba(0, 255, 0, 0.6), 0 0 30px rgba(0, 255, 0, 0.3), 0 0 45px rgba(0, 255, 0, 0.15);
+}
