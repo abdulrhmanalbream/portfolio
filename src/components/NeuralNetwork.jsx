@@ -1,346 +1,703 @@
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 
+// ── Bezier helpers ──────────────────────────────────────────────────
+function cubicBezier(t, p0, p1, p2, p3) {
+  const u = 1 - t;
+  return u * u * u * p0 + 3 * u * u * t * p1 + 3 * u * t * t * p2 + t * t * t * p3;
+}
+
+function estimateBezierLength(x1, y1, cx1, cy1, cx2, cy2, x2, y2, steps = 30) {
+  let len = 0, px = x1, py = y1;
+  for (let i = 1; i <= steps; i++) {
+    const t = i / steps;
+    const nx = cubicBezier(t, x1, cx1, cx2, x2);
+    const ny = cubicBezier(t, y1, cy1, cy2, y2);
+    len += Math.sqrt((nx - px) ** 2 + (ny - py) ** 2);
+    px = nx; py = ny;
+  }
+  return len;
+}
+
+function getPointOnBezier(t, x1, y1, cx1, cy1, cx2, cy2, x2, y2) {
+  return {
+    x: cubicBezier(t, x1, cx1, cx2, x2),
+    y: cubicBezier(t, y1, cy1, cy2, y2),
+  };
+}
+
+// ── Scenario definitions ────────────────────────────────────────────
+// Each scenario has its own layer titles, node labels, and output probabilities.
+// Structure per scenario: 3-4-3-3 nodes (13 total)
+const SCENARIOS = [
+  // ─── Scenario 1: Digital Transformation & Software Engineering ────
+  {
+    caseName: "DIGITAL TRANSFORMATION",
+    layers: [
+      {
+        id: 1, title: "REQUIREMENTS", color: "#00e5ff",
+        nodes: [
+          { id: "i1", label: "Stakeholders" },
+          { id: "i2", label: "Legacy System" },
+          { id: "i3", label: "Business Goals" },
+        ],
+      },
+      {
+        id: 2, title: "ANALYSIS", color: "#00e676",
+        nodes: [
+          { id: "p1", label: "System Audit" },
+          { id: "p2", label: "Gap Analysis" },
+          { id: "p3", label: "Risk Mapping" },
+          { id: "p4", label: "Compliance" },
+        ],
+      },
+      {
+        id: 3, title: "DESIGN", color: "#ffea00",
+        nodes: [
+          { id: "a1", label: "Architecture" },
+          { id: "a2", label: "Data Model" },
+          { id: "a3", label: "Security Plan" },
+        ],
+      },
+      {
+        id: 4, title: "PLAN", color: "#ff6d00",
+        nodes: [
+          { id: "o1", label: "Agile Sprint", probability: 62 },
+          { id: "o2", label: "Waterfall", probability: 24 },
+          { id: "o3", label: "Hybrid", probability: 14 },
+        ],
+      },
+    ],
+  },
+
+  // ─── Scenario 2: AI / ML Pipeline ────────────────────────────────
+  {
+    caseName: "AI MODEL PIPELINE",
+    layers: [
+      {
+        id: 1, title: "DATA", color: "#00e5ff",
+        nodes: [
+          { id: "i1", label: "Raw Dataset" },
+          { id: "i2", label: "Labels" },
+          { id: "i3", label: "Constraints" },
+        ],
+      },
+      {
+        id: 2, title: "PROCESS", color: "#00e676",
+        nodes: [
+          { id: "p1", label: "Cleaning" },
+          { id: "p2", label: "Feature Eng." },
+          { id: "p3", label: "Model Select" },
+          { id: "p4", label: "Training" },
+        ],
+      },
+      {
+        id: 3, title: "EVALUATE", color: "#ffea00",
+        nodes: [
+          { id: "a1", label: "Accuracy" },
+          { id: "a2", label: "Overfitting" },
+          { id: "a3", label: "Bias Audit" },
+        ],
+      },
+      {
+        id: 4, title: "MODEL", color: "#ff6d00",
+        nodes: [
+          { id: "o1", label: "Deep Learning", probability: 71 },
+          { id: "o2", label: "Random Forest", probability: 19 },
+          { id: "o3", label: "SVM", probability: 10 },
+        ],
+      },
+    ],
+  },
+
+  // ─── Scenario 3: Web / App Development ───────────────────────────
+  {
+    caseName: "WEB APP DEVELOPMENT",
+    layers: [
+      {
+        id: 1, title: "GATHER", color: "#00e5ff",
+        nodes: [
+          { id: "i1", label: "User Stories" },
+          { id: "i2", label: "Wireframes" },
+          { id: "i3", label: "Tech Reqs" },
+        ],
+      },
+      {
+        id: 2, title: "BUILD", color: "#00e676",
+        nodes: [
+          { id: "p1", label: "UI Design" },
+          { id: "p2", label: "Backend API" },
+          { id: "p3", label: "Database" },
+          { id: "p4", label: "Auth System" },
+        ],
+      },
+      {
+        id: 3, title: "TEST", color: "#ffea00",
+        nodes: [
+          { id: "a1", label: "Performance" },
+          { id: "a2", label: "UX Review" },
+          { id: "a3", label: "Security" },
+        ],
+      },
+      {
+        id: 4, title: "DEPLOY", color: "#ff6d00",
+        nodes: [
+          { id: "o1", label: "Cloud Native", probability: 58 },
+          { id: "o2", label: "Serverless", probability: 30 },
+          { id: "o3", label: "On-Premise", probability: 12 },
+        ],
+      },
+    ],
+  },
+];
+
+// ═══════════════════════════════════════════════════════════════════
 export default function NeuralNetwork() {
-  // More sophisticated state tracking: which layers are currently active and if data is moving
-  const [networkState, setNetworkState] = useState({
-    activeLayers: [1],      // Which layers are "lit up"
-    movingDataStage: 1,     // Which stage (1->2, 2->3, 3->4) is data moving through
-    isMoving: true,         // Is data currently in transit?
-  });
+  const containerRef = useRef(null);
+  const [isMobile, setIsMobile] = useState(false);
+  const animFrameRef = useRef(null);
+  const startTimeRef = useRef(null);
+  const [scenarioIndex, setScenarioIndex] = useState(0);
 
-  // Master cycle using chained setTimeout for PRECISE timing
+  // Current scenario's layers
+  const scenario = SCENARIOS[scenarioIndex];
+  const layers = scenario.layers;
+
+  // Animation state
+  const [animState, setAnimState] = useState({ phase: 0, progress: 0 });
+
   useEffect(() => {
-    // Define all states in the cycle
-    const cycleStates = [
-      // 0-2s: Layer 1 active, data moving FROM 1 TO 2
-      { duration: 2000, state: { activeLayers: [1], movingDataStage: 1, isMoving: true } },
-      
-      // 2-4s: Layer 1 stays ON, Layer 2 receives data and lights up
-      { duration: 2000, state: { activeLayers: [1, 2], movingDataStage: 2, isMoving: true } },
-      
-      // 4-6s: Layer 1&2 stay ON, Layer 3 receives data and lights up
-      { duration: 2000, state: { activeLayers: [1, 2, 3], movingDataStage: 3, isMoving: true } },
-      
-      // 6-8s: Layer 1&2&3 stay ON, Layer 4 receives data and lights up
-      { duration: 2000, state: { activeLayers: [1, 2, 3, 4], movingDataStage: 0, isMoving: false } },
-      
-      // 8-11s: Everything stays ON - wait period (3 seconds)
-      { duration: 3000, state: { activeLayers: [1, 2, 3, 4], movingDataStage: 0, isMoving: false } },
-      
-      // 11-12s: Turn everything off
-      { duration: 1000, state: { activeLayers: [], movingDataStage: 0, isMoving: false } },
-    ];
-
-    let currentStateIndex = 0;
-    let timeoutId = null;
-
-    const scheduleNext = () => {
-      const currentCycleState = cycleStates[currentStateIndex];
-      
-      // Update network state
-      setNetworkState(currentCycleState.state);
-      
-      // Move to next state
-      currentStateIndex = (currentStateIndex + 1) % cycleStates.length;
-      
-      // Schedule the next state with its EXACT duration
-      timeoutId = setTimeout(scheduleNext, currentCycleState.duration);
-    };
-
-    // Start the cycle
-    scheduleNext();
-
-    // Proper cleanup - cancel any pending timeout
-    return () => {
-      if (timeoutId) clearTimeout(timeoutId);
-    };
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
   }, []);
 
-  // Professional Digital Transformation Architecture
-  const nodes = useMemo(() => {
-    return [
-      // Layer 1: Raw Data Inputs
-      { id: 1, x: 80, y: 100, size: 12, label: "USER_BEHAVIOR", layer: 1 },
-      { id: 2, x: 80, y: 190, size: 12, label: "MANUAL_RECORDS", layer: 1 },
-      { id: 3, x: 80, y: 280, size: 12, label: "RAW_TRANSACTIONS", layer: 1 },
-      
-      // Layer 2: Processing & Automation
-      { id: 4, x: 280, y: 70, size: 12, label: "DATA_DIGITIZATION", layer: 2 },
-      { id: 5, x: 280, y: 190, size: 12, label: "RBAC_SECURITY", layer: 2 },
-      { id: 6, x: 280, y: 310, size: 12, label: "WORKFLOW_AUTOMATION", layer: 2 },
+  // ── Node positions ────────────────────────────────────────────────
+  const nodePositions = useMemo(() => {
+    const positions = {};
+    if (isMobile) {
+      const layerHeight = 100;
+      const startY = 70;
+      layers.forEach((layer, li) => {
+        const y = startY + li * layerHeight;
+        const cnt = layer.nodes.length;
+        const startX = 40;
+        const endX = 320;
+        const rangeX = endX - startX;
+        const sp = cnt > 1 ? rangeX / (cnt - 1) : 0;
+        layer.nodes.forEach((node, ni) => {
+          positions[node.id] = {
+            x: cnt > 1 ? startX + ni * sp : 180, y,
+            layer: layer.id, color: layer.color,
+            label: node.label,
+            probability: node.probability || null,
+          };
+        });
+      });
+    } else {
+      const layerX = [100, 320, 540, 760];
+      const svgH = 290;
+      layers.forEach((layer, li) => {
+        const cnt = layer.nodes.length;
+        const sp = svgH / (cnt + 1);
+        layer.nodes.forEach((node, ni) => {
+          positions[node.id] = {
+            x: layerX[li], y: sp * (ni + 1),
+            layer: layer.id, color: layer.color,
+            label: node.label,
+            probability: node.probability || null,
+          };
+        });
+      });
+    }
+    return positions;
+  }, [layers, isMobile]);
 
-      // Layer 3: Analytics & Insights
-      { id: 7, x: 480, y: 130, size: 12, label: "PATTERN_RECOGNITION", layer: 3 },
-      { id: 8, x: 480, y: 250, size: 12, label: "BEHAVIOR_ANALYTICS", layer: 3 },
-
-      // Layer 4: Output & Transformation
-      { id: 9, x: 680, y: 100, size: 12, label: "SMART_RECOMMENDATIONS", layer: 4 },
-      { id: 10, x: 680, y: 280, size: 12, label: "DIGITAL_TRANSFORMATION", layer: 4 },
-    ];
-  }, []);
-
+  // ── Connections ───────────────────────────────────────────────────
   const connections = useMemo(() => {
-    const list = [];
-    
-    const layer1 = nodes.filter(n => n.x === 80);
-    const layer2 = nodes.filter(n => n.x === 280);
-    const layer3 = nodes.filter(n => n.x === 480);
-    const layer4 = nodes.filter(n => n.x === 680);
-
-    // Input to Processing
-    layer1.forEach((n1, i) => {
-      layer2.forEach((n2, j) => {
-        list.push({ 
-          from: n1, 
-          to: n2, 
-          id: `c1-${i}-${j}`, 
-          active: true,
-          stage: 1  // Stage 1: from layer 1 to layer 2
+    const conns = [];
+    for (let li = 0; li < layers.length - 1; li++) {
+      const fromLayer = layers[li];
+      const toLayer = layers[li + 1];
+      fromLayer.nodes.forEach((fn) => {
+        toLayer.nodes.forEach((tn) => {
+          const from = nodePositions[fn.id];
+          const to = nodePositions[tn.id];
+          if (!from || !to) return;
+          let cx1, cy1, cx2, cy2;
+          if (isMobile) {
+            cx1 = from.x; cy1 = from.y + (to.y - from.y) * 0.4;
+            cx2 = to.x; cy2 = from.y + (to.y - from.y) * 0.6;
+          } else {
+            cx1 = from.x + (to.x - from.x) * 0.4; cy1 = from.y;
+            cx2 = from.x + (to.x - from.x) * 0.6; cy2 = to.y;
+          }
+          const pathD = `M ${from.x} ${from.y} C ${cx1} ${cy1}, ${cx2} ${cy2}, ${to.x} ${to.y}`;
+          const len = estimateBezierLength(from.x, from.y, cx1, cy1, cx2, cy2, to.x, to.y);
+          conns.push({
+            from, to, stage: li + 1,
+            cx1, cy1, cx2, cy2, pathD, length: len,
+            fromLayer: fromLayer.id, toLayer: toLayer.id,
+          });
         });
       });
-    });
+    }
+    return conns;
+  }, [layers, nodePositions, isMobile]);
 
-    // Processing to Analytics
-    layer2.forEach((n2, i) => {
-      layer3.forEach((n3, j) => {
-        list.push({ 
-          from: n2, 
-          to: n3, 
-          id: `c2-${i}-${j}`, 
-          active: true,
-          stage: 2  // Stage 2: from layer 2 to layer 3
-        });
-      });
-    });
+  // ── Animation timeline ────────────────────────────────────────────
+  const TRAVEL_MS = 1600;
+  const BURST_MS = 500;
+  const HOLD_MS = 2800; // longer hold so user can read probabilities
+  const FADE_MS = 700;
 
-    // Analytics to Output
-    layer3.forEach((n3, i) => {
-      layer4.forEach((n4, j) => {
-        list.push({ 
-          from: n3, 
-          to: n4, 
-          id: `c3-${i}-${j}`, 
-          active: true,
-          stage: 3  // Stage 3: from layer 3 to layer 4
-        });
-      });
-    });
+  const phases = useMemo(() => [
+    { type: "travel", stage: 1, duration: TRAVEL_MS },
+    { type: "burst", layer: 2, duration: BURST_MS },
+    { type: "travel", stage: 2, duration: TRAVEL_MS },
+    { type: "burst", layer: 3, duration: BURST_MS },
+    { type: "travel", stage: 3, duration: TRAVEL_MS },
+    { type: "burst", layer: 4, duration: BURST_MS },
+    { type: "hold", duration: HOLD_MS },
+    { type: "fade", duration: FADE_MS },
+  ], []);
 
-    return list;
-  }, [nodes]);
+  const totalCycleDuration = useMemo(
+    () => phases.reduce((s, p) => s + p.duration, 0),
+    [phases]
+  );
+
+  // Track which cycle we're on to switch scenario
+  const prevCycleRef = useRef(0);
+
+  useEffect(() => {
+    startTimeRef.current = performance.now();
+    prevCycleRef.current = 0;
+
+    const tick = (now) => {
+      const elapsed = now - startTimeRef.current;
+      const currentCycle = Math.floor(elapsed / totalCycleDuration);
+      const cycleTime = elapsed % totalCycleDuration;
+
+      // Switch scenario when a new cycle begins
+      if (currentCycle > prevCycleRef.current) {
+        prevCycleRef.current = currentCycle;
+        setScenarioIndex((prev) => (prev + 1) % SCENARIOS.length);
+      }
+
+      let accumulated = 0, currentPhase = 0, phaseProgress = 0;
+      for (let i = 0; i < phases.length; i++) {
+        if (cycleTime < accumulated + phases[i].duration) {
+          currentPhase = i;
+          phaseProgress = (cycleTime - accumulated) / phases[i].duration;
+          break;
+        }
+        accumulated += phases[i].duration;
+      }
+
+      setAnimState({ phase: currentPhase, progress: Math.min(phaseProgress, 1) });
+      animFrameRef.current = requestAnimationFrame(tick);
+    };
+
+    animFrameRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(animFrameRef.current);
+  }, [phases, totalCycleDuration]);
+
+  // ── Derived animation state ───────────────────────────────────────
+  const currentPhaseData = phases[animState.phase] || phases[0];
+
+  const activeLayers = useMemo(() => {
+    const set = new Set([1]);
+    for (let i = 0; i <= animState.phase; i++) {
+      const p = phases[i];
+      if (p.type === "burst") set.add(p.layer);
+      if (p.type === "travel") set.add(p.stage);
+      if (p.type === "hold") { set.add(1); set.add(2); set.add(3); set.add(4); }
+    }
+    if (currentPhaseData.type === "fade") return new Set();
+    return set;
+  }, [animState.phase, phases, currentPhaseData]);
+
+  const burstLayer = currentPhaseData.type === "burst" ? currentPhaseData.layer : null;
+  const burstProgress = burstLayer ? animState.progress : 0;
+  const travelingStage = currentPhaseData.type === "travel" ? currentPhaseData.stage : null;
+  const travelProgress = travelingStage ? animState.progress : 0;
+  const isHoldPhase = currentPhaseData.type === "hold";
+  const holdProgress = isHoldPhase ? animState.progress : 0;
+
+  const easeInOut = (t) => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+
+  // Should we show probabilities? (during burst of layer 4 or hold phase)
+  const showProbabilities = (burstLayer === 4) || isHoldPhase;
+
+  // ── SVG ───────────────────────────────────────────────────────────
+  const viewBox = isMobile ? "0 0 360 440" : "0 0 880 290";
+
+  // Get the position of the center of a layer (for label placement on desktop)
+  const getLayerCenterX = (layerId) => {
+    const layerNodes = layers.find(l => l.id === layerId)?.nodes || [];
+    if (layerNodes.length === 0) return 0;
+    const firstPos = nodePositions[layerNodes[0].id];
+    return firstPos ? firstPos.x : 0;
+  };
 
   return (
-    <div className="relative w-full min-h-[550px] border-2 border-matrix-green/30 bg-black/60 rounded-lg overflow-hidden flex flex-col items-center justify-center p-6">
-      {/* Background grid */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(15,255,15,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(15,255,15,0.03)_1px,transparent_1px)] bg-[size:20px_20px] pointer-events-none" />
-      
-      {/* Network Schema Title */}
-      <div className="absolute top-4 left-6 font-mono text-sm text-matrix-green/60 tracking-wider flex items-center gap-2 select-none z-10">
-        <span className="w-2 h-2 rounded-full bg-matrix-green animate-pulse" />
-        ENTERPRISE_ARCHITECTURE: DIGITAL_TRANSFORMATION_PIPELINE
+    <div
+      ref={containerRef}
+      className="relative w-full border border-white/[0.06] bg-gradient-to-br from-black/80 via-[#050a05]/90 to-black/80 rounded-xl overflow-hidden flex flex-col"
+      style={{
+        minHeight: isMobile ? "540px" : "300px",
+        backdropFilter: "blur(20px)",
+      }}
+    >
+      {/* Ambient background glow */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(ellipse at 30% 20%, rgba(0,229,255,0.04) 0%, transparent 60%), " +
+            "radial-gradient(ellipse at 70% 80%, rgba(255,109,0,0.03) 0%, transparent 60%)",
+        }}
+      />
+
+      {/* Grid */}
+      <div
+        className="absolute inset-0 pointer-events-none opacity-[0.03]"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), " +
+            "linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)",
+          backgroundSize: "40px 40px",
+        }}
+      />
+
+      {/* Header: pipeline status + scenario title */}
+      <div className="relative z-10 flex items-center justify-between px-4 pt-3 pb-1 md:px-6 md:pt-4">
+        <div className="flex items-center gap-2">
+          <span className="relative flex h-2 w-2">
+            <span
+              className="absolute inline-flex h-full w-full rounded-full opacity-75 animate-ping"
+              style={{
+                backgroundColor: travelingStage
+                  ? layers[travelingStage - 1]?.color
+                  : burstLayer
+                    ? layers[burstLayer - 1]?.color
+                    : "#00e5ff",
+                animationDuration: "2s",
+              }}
+            />
+            <span
+              className="relative inline-flex rounded-full h-2 w-2"
+              style={{
+                backgroundColor: travelingStage
+                  ? layers[travelingStage - 1]?.color
+                  : burstLayer
+                    ? layers[burstLayer - 1]?.color
+                    : "#00e5ff",
+              }}
+            />
+          </span>
+          <span className="font-mono text-[11px] md:text-sm tracking-[0.15em] text-white/40 uppercase">
+            Neural Pipeline
+          </span>
+        </div>
+        {/* Scenario case name */}
+        <span
+          className="font-mono text-[10px] md:text-xs tracking-[0.15em] uppercase"
+          style={{
+            color: "#ff6d00",
+            opacity: currentPhaseData.type === "fade" ? 0 : 0.6,
+            transition: "opacity 0.4s ease",
+          }}
+        >
+          CASE: {scenario.caseName}
+        </span>
       </div>
 
-      <div className="w-full h-full relative select-none">
-        <svg
-          viewBox="0 0 800 380"
-          className="w-full h-full"
-          style={{ filter: "drop-shadow(0 0 10px rgba(15, 255, 15, 0.1))" }}
-        >
-          {/* Layer Separator Lines */}
-          <line x1="150" y1="20" x2="150" y2="360" stroke="#0f0" strokeWidth="1" opacity="0.1" strokeDasharray="5,5" />
-          <line x1="350" y1="20" x2="350" y2="360" stroke="#0f0" strokeWidth="1" opacity="0.1" strokeDasharray="5,5" />
-          <line x1="550" y1="20" x2="550" y2="360" stroke="#0f0" strokeWidth="1" opacity="0.1" strokeDasharray="5,5" />
+      {/* SVG Network */}
+      <div className="flex-1 w-full relative select-none px-2 pb-1 md:px-4 md:pb-3">
+        <svg viewBox={viewBox} className="w-full h-full" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            {connections.map((c, idx) => (
+              <linearGradient
+                key={`grad-${idx}`}
+                id={`conn-grad-${scenarioIndex}-${idx}`}
+                x1={c.from.x} y1={c.from.y}
+                x2={c.to.x} y2={c.to.y}
+                gradientUnits="userSpaceOnUse"
+              >
+                <stop offset="0%" stopColor={c.from.color} />
+                <stop offset="100%" stopColor={c.to.color} />
+              </linearGradient>
+            ))}
+          </defs>
 
-          {/* Layer Headers - Large & Readable */}
-          <g>
-            <rect x="40" y="-15" width="80" height="30" fill="#0f0" opacity="0.05" rx="4" />
-            <text x="80" y="-2" textAnchor="middle" fill="#00ff00" fontSize="13" fontWeight="bold">
-              LAYER 1
-            </text>
-            <text x="80" y="12" textAnchor="middle" fill="#00ff00" opacity="0.8" fontSize="10">
-              INPUT
-            </text>
-          </g>
+          {/* Layer labels */}
+          {layers.map((layer) => {
+            const active = activeLayers.has(layer.id);
+            const firstNode = layer.nodes[0];
+            const pos = nodePositions[firstNode.id];
+            if (!pos) return null;
 
-          <g>
-            <rect x="240" y="-15" width="80" height="30" fill="#0f0" opacity="0.05" rx="4" />
-            <text x="280" y="-2" textAnchor="middle" fill="#00ff00" fontSize="13" fontWeight="bold">
-              LAYER 2
-            </text>
-            <text x="280" y="12" textAnchor="middle" fill="#00ff00" opacity="0.8" fontSize="10">
-              PROCESS
-            </text>
-          </g>
-
-          <g>
-            <rect x="440" y="-15" width="80" height="30" fill="#0f0" opacity="0.05" rx="4" />
-            <text x="480" y="-2" textAnchor="middle" fill="#00ff00" fontSize="13" fontWeight="bold">
-              LAYER 3
-            </text>
-            <text x="480" y="12" textAnchor="middle" fill="#00ff00" opacity="0.8" fontSize="10">
-              ANALYTICS
-            </text>
-          </g>
-
-          <g>
-            <rect x="640" y="-15" width="80" height="30" fill="#0f0" opacity="0.05" rx="4" />
-            <text x="680" y="-2" textAnchor="middle" fill="#00ff00" fontSize="13" fontWeight="bold">
-              LAYER 4
-            </text>
-            <text x="680" y="12" textAnchor="middle" fill="#00ff00" opacity="0.8" fontSize="10">
-              OUTPUT
-            </text>
-          </g>
-
-          {/* Render Connections - only active ones glow */}
-          {connections.map((c) => {
-            // Only show pulses on the current moving stage
-            const shouldShowPulse = networkState.isMoving && 
-                                     networkState.movingDataStage === c.stage;
-            
             return (
-              <motion.line
-                key={c.id}
-                x1={c.from.x}
-                y1={c.from.y}
-                x2={c.to.x}
-                y2={c.to.y}
-                strokeWidth="1.5"
-                initial={{ opacity: 0.15 }}
-                animate={{ opacity: shouldShowPulse ? [0.9, 1, 0.9] : 0.15 }}
-                transition={{ 
-                  duration: 2.5, 
-                  repeat: shouldShowPulse ? Infinity : 0,
-                  ease: "easeInOut" 
-                }}
-                stroke="#0f0"
-                style={{ filter: shouldShowPulse ? "drop-shadow(0 0 8px rgba(15, 255, 15, 0.9))" : "drop-shadow(0 0 0px rgba(15, 255, 15, 0))" }}
+              <text
+                key={`lbl-${layer.id}-${scenarioIndex}`}
+                x={isMobile ? 180 : pos.x}
+                y={isMobile ? pos.y - 30 : 22}
+                textAnchor="middle"
+                fill={layer.color}
+                fontSize={isMobile ? "10" : "13"}
+                fontWeight="700"
+                fontFamily="monospace"
+                letterSpacing="0.12em"
+                opacity={active ? 0.7 : 0.15}
+                style={{ transition: "opacity 0.4s ease" }}
+              >
+                {layer.title}
+              </text>
+            );
+          })}
+
+          {/* Connection paths */}
+          {connections.map((c, idx) => {
+            const isActive = activeLayers.has(c.fromLayer) && activeLayers.has(c.toLayer);
+            const isTraveling = travelingStage === c.stage;
+            return (
+              <path
+                key={`conn-${idx}`}
+                d={c.pathD}
+                fill="none"
+                stroke={`url(#conn-grad-${scenarioIndex}-${idx})`}
+                strokeWidth={isTraveling ? 2 : isActive ? 1.2 : 0.4}
+                opacity={isTraveling ? 0.7 : isActive ? 0.2 : 0.05}
+                style={{ transition: "opacity 0.3s ease, stroke-width 0.3s ease" }}
               />
             );
           })}
 
-          {/* Glowing pulse paths - only on active moving stage */}
-          {connections.map((c, idx) => {
-            const shouldMovePulse = networkState.isMoving && 
-                                     networkState.movingDataStage === c.stage;
-            
-            return shouldMovePulse ? (
-              <g key={`pulse-${idx}`}>
-                <motion.circle
-                  r="2.5"
-                  fill="#0f0"
-                  opacity="1"
-                  initial={{ x: c.from.x, y: c.from.y }}
-                  animate={{ 
-                    x: c.to.x, 
-                    y: c.to.y 
-                  }}
-                  transition={{
-                    duration: 2,
-                    repeat: Infinity,
-                    ease: "linear",
-                    delay: idx * 0.1,
-                  }}
-                  style={{ filter: "drop-shadow(0 0 6px rgba(15, 255, 15, 1))" }}
-                />
-              </g>
-            ) : null;
-          })}
+          {/* Traveling pulse dots */}
+          {travelingStage && connections
+            .filter((c) => c.stage === travelingStage)
+            .map((c, idx) => {
+              const t = easeInOut(travelProgress);
+              const pt = getPointOnBezier(
+                t, c.from.x, c.from.y, c.cx1, c.cy1, c.cx2, c.cy2, c.to.x, c.to.y
+              );
+              const dotR = isMobile ? 2.5 : 3.5;
+              const trailR = isMobile ? 6 : 9;
+              return (
+                <g key={`pulse-${idx}`}>
+                  <circle cx={pt.x} cy={pt.y} r={trailR}
+                    fill={c.from.color} opacity={0.2} style={{ filter: "blur(4px)" }} />
+                  <circle cx={pt.x} cy={pt.y} r={dotR}
+                    fill="white" opacity={0.95}
+                    style={{ filter: `drop-shadow(0 0 6px ${c.from.color}) drop-shadow(0 0 12px ${c.from.color})` }} />
+                  <circle cx={pt.x} cy={pt.y} r={dotR * 0.4}
+                    fill="white" opacity={1} />
+                </g>
+              );
+            })}
 
-          {/* Render Nodes */}
-          {nodes.map((n) => {
-            // Node is active if it's in the active layers list
-            const isNodeActive = networkState.activeLayers.includes(n.layer);
-            
-            // Get the highest layer currently active (most recent data arrival)
-            const highestActiveLayer = Math.max(...networkState.activeLayers, 0);
-            
-            // Calculate glow intensity: layer 4 = max, layer 1 = less, inactive = zero
-            let glowIntensity = 0;
-            if (isNodeActive) {
-              if (n.layer === highestActiveLayer) {
-                glowIntensity = 1;        // Maximum glow (1.0) for newest layer
-              } else if (n.layer === highestActiveLayer - 1) {
-                glowIntensity = 0.7;      // Medium glow (0.7) for previous layer
-              } else if (n.layer === highestActiveLayer - 2) {
-                glowIntensity = 0.4;      // Light glow (0.4) for 2 layers back
-              } else {
-                glowIntensity = 0.15;     // Minimal glow for oldest active layers
-              }
-            }
-            
+          {/* Nodes */}
+          {Object.entries(nodePositions).map(([id, pos]) => {
+            const active = activeLayers.has(pos.layer);
+            const isBursting = burstLayer === pos.layer;
+            const isOutputNode = pos.layer === 4;
+            const nodeRadius = isMobile ? 9 : 13;
+
+            // Burst effect
+            const burstRingR = isBursting ? nodeRadius + 6 + burstProgress * 20 : nodeRadius + 6;
+            const burstRingOpacity = isBursting ? Math.max(0, 0.8 - burstProgress * 0.9) : 0;
+
+            // For output nodes: probability bar width
+            const prob = pos.probability;
+            const isWinner = isOutputNode && prob && prob >= 50;
+            const showProb = isOutputNode && showProbabilities && prob;
+
+            // Probability bar dimensions
+            const barWidth = isMobile ? 40 : 55;
+            const barHeight = isMobile ? 5 : 6;
+            const barX = pos.x - barWidth / 2;
+            const barY = pos.y + nodeRadius + (isMobile ? 19 : 23);
+
             return (
-              <g key={n.id}>
-                {/* Glow aura - appears on ALL active nodes, intensity varies by layer */}
-                {isNodeActive && glowIntensity > 0 && (
-                  <motion.circle
-                    cx={n.x}
-                    cy={n.y}
-                    r={n.size + 4}
-                    fill="none"
-                    stroke="#0f0"
-                    strokeWidth={glowIntensity * 1.5}
-                    animate={{ 
-                      r: [n.size + 4, n.size + 9, n.size + 4],
-                      strokeOpacity: [glowIntensity * 0.6, glowIntensity * 0.95, glowIntensity * 0.6]
-                    }}
-                    transition={{ 
-                      duration: 1.2, 
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }}
-                    style={{
-                      filter: `drop-shadow(0 0 ${glowIntensity * 10}px rgba(15, 255, 15, ${glowIntensity * 0.9}))`
-                    }}
+              <g key={`${id}-${scenarioIndex}`}>
+                {/* Burst shockwave */}
+                {isBursting && (
+                  <circle cx={pos.x} cy={pos.y} r={burstRingR}
+                    fill="none" stroke={pos.color}
+                    strokeWidth={2 - burstProgress * 1.5}
+                    opacity={burstRingOpacity}
+                    style={{ filter: `drop-shadow(0 0 ${8 + burstProgress * 15}px ${pos.color})` }}
                   />
                 )}
-                
+
+                {/* Outer glow ring */}
+                {active && !isBursting && (
+                  <circle cx={pos.x} cy={pos.y} r={nodeRadius + 5}
+                    fill="none" stroke={pos.color} strokeWidth={0.7} opacity={0.2} />
+                )}
+
+                {/* Winner highlight for top probability */}
+                {showProb && isWinner && (
+                  <circle cx={pos.x} cy={pos.y} r={nodeRadius + 8}
+                    fill="none" stroke={pos.color} strokeWidth={1.5}
+                    opacity={0.4}
+                    style={{ filter: `drop-shadow(0 0 12px ${pos.color})` }}
+                  >
+                    <animate attributeName="opacity" values="0.4;0.7;0.4" dur="1.5s" repeatCount="indefinite" />
+                  </circle>
+                )}
+
                 {/* Main node circle */}
-                <motion.circle
-                  cx={n.x}
-                  cy={n.y}
-                  r={n.size}
-                  className={`${
-                    isNodeActive
-                      ? "fill-matrix-green stroke-matrix-green"
-                      : "fill-neutral-900/10 stroke-matrix-green/5"
-                  } stroke-1.5 cursor-pointer transition-all duration-300`}
-                  whileHover={{ r: isNodeActive ? n.size + 2 : n.size }}
-                  style={{ 
-                    filter: isNodeActive
-                      ? `drop-shadow(0 0 ${8 + glowIntensity * 8}px rgba(15, 255, 15, ${glowIntensity * 0.9}))`
-                      : "drop-shadow(0 0 0px rgba(15, 255, 15, 0))",
-                    opacity: isNodeActive ? 1 : 0.3
+                <circle cx={pos.x} cy={pos.y} r={nodeRadius}
+                  fill={active ? pos.color : "rgba(255,255,255,0.03)"}
+                  fillOpacity={
+                    isBursting ? 0.15 + burstProgress * 0.25
+                      : showProb && isWinner ? 0.35
+                        : active ? 0.15 : 0.03
+                  }
+                  stroke={pos.color}
+                  strokeWidth={showProb && isWinner ? 2 : active ? 1.5 : 0.5}
+                  opacity={active ? 1 : 0.2}
+                  style={{
+                    filter: active
+                      ? `drop-shadow(0 0 ${isBursting ? 18 : showProb && isWinner ? 14 : 8}px ${pos.color})`
+                      : "none",
+                    transition: "opacity 0.3s ease, filter 0.3s ease",
                   }}
                 />
 
-                {/* Node text identifiers - ABOVE nodes on single line */}
-                {isNodeActive && (
-                  <text
-                    x={n.x}
-                    y={n.y - n.size - 15}
-                    textAnchor="middle"
-                    fill="#00ff00"
-                    fontSize="9"
-                    fontWeight="bold"
-                    opacity={glowIntensity}
-                    className="transition-all duration-300"
-                  >
-                    {n.label}
-                  </text>
+                {/* Center dot */}
+                {active && (
+                  <circle cx={pos.x} cy={pos.y} r={isMobile ? 1.5 : 2.5}
+                    fill="white"
+                    opacity={isBursting ? 1 : showProb && isWinner ? 0.9 : 0.5}
+                    style={{ filter: isBursting ? "drop-shadow(0 0 4px white)" : "none" }}
+                  />
+                )}
+
+                {/* Burst flash */}
+                {isBursting && burstProgress < 0.4 && (
+                  <circle cx={pos.x} cy={pos.y} r={nodeRadius + 2}
+                    fill={pos.color}
+                    opacity={0.3 * (1 - burstProgress / 0.4)}
+                    style={{ filter: "blur(3px)" }}
+                  />
+                )}
+
+                {/* Node label */}
+                <text
+                  x={pos.x}
+                  y={pos.y + nodeRadius + (isMobile ? 11 : 14)}
+                  textAnchor="middle"
+                  fill={pos.color}
+                  fontSize={isMobile ? "10" : "12"}
+                  fontWeight="600"
+                  fontFamily="monospace"
+                  letterSpacing="0.03em"
+                  opacity={active ? 0.85 : 0.15}
+                  style={{ transition: "opacity 0.3s ease" }}
+                >
+                  {pos.label}
+                </text>
+
+                {/* ── Probability bar (output layer only) ─────────── */}
+                {showProb && (
+                  <g opacity={burstLayer === 4 ? burstProgress : 1}
+                    style={{ transition: "opacity 0.3s ease" }}>
+                    {/* Bar background */}
+                    <rect
+                      x={barX} y={barY}
+                      width={barWidth} height={barHeight}
+                      rx={barHeight / 2}
+                      fill="rgba(255,255,255,0.06)"
+                      stroke={pos.color}
+                      strokeWidth={0.3}
+                      opacity={0.5}
+                    />
+                    {/* Filled portion */}
+                    <rect
+                      x={barX} y={barY}
+                      width={barWidth * (prob / 100)}
+                      height={barHeight}
+                      rx={barHeight / 2}
+                      fill={pos.color}
+                      opacity={isWinner ? 0.7 : 0.35}
+                      style={{
+                        filter: isWinner ? `drop-shadow(0 0 4px ${pos.color})` : "none",
+                      }}
+                    />
+                    {/* Percentage text */}
+                    <text
+                      x={pos.x}
+                      y={barY + barHeight + (isMobile ? 9 : 11)}
+                      textAnchor="middle"
+                      fill={isWinner ? "white" : pos.color}
+                      fontSize={isMobile ? "10" : "12"}
+                      fontWeight={isWinner ? "800" : "600"}
+                      fontFamily="monospace"
+                      opacity={isWinner ? 1 : 0.6}
+                      style={{
+                        filter: isWinner ? `drop-shadow(0 0 6px ${pos.color})` : "none",
+                      }}
+                    >
+                      {prob}%
+                    </text>
+                  </g>
                 )}
               </g>
             );
           })}
         </svg>
       </div>
-      
-      {/* HUD diagnostic footer */}
-      <div className="absolute bottom-4 right-6 font-mono text-xs text-matrix-green/70 flex gap-6 select-none">
-        <span>SYSTEM_STATE: DIGITAL_TRANSFORMATION_ACTIVE</span>
-        <span>PROCESS_AUTOMATION: OPTIMIZED</span>
+
+      {/* Footer */}
+      <div className="relative z-10 flex items-center justify-between px-4 pb-3 md:px-6 md:pb-4">
+        <div className="flex items-center gap-2 md:gap-3">
+          {layers.map((layer) => (
+            <div
+              key={`${layer.id}-${scenarioIndex}`}
+              className="flex items-center gap-1"
+              style={{
+                opacity: activeLayers.has(layer.id) ? 1 : 0.25,
+                transition: "opacity 0.3s ease",
+              }}
+            >
+              <div
+                className="w-1.5 h-1.5 rounded-full"
+                style={{
+                  backgroundColor: layer.color,
+                  boxShadow: activeLayers.has(layer.id) ? `0 0 6px ${layer.color}` : "none",
+                }}
+              />
+              <span
+                className="font-mono text-[9px] md:text-[11px] tracking-wider hidden sm:inline"
+                style={{ color: layer.color }}
+              >
+                {layer.title}
+              </span>
+            </div>
+          ))}
+        </div>
+        {/* Scenario dots indicator */}
+        <div className="flex items-center gap-1.5">
+          {SCENARIOS.map((_, idx) => (
+            <div
+              key={idx}
+              className="rounded-full"
+              style={{
+                width: idx === scenarioIndex ? 12 : 4,
+                height: 4,
+                backgroundColor: idx === scenarioIndex ? "#ff6d00" : "rgba(255,255,255,0.15)",
+                borderRadius: 2,
+                transition: "all 0.4s ease",
+              }}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );
-} 
+}
