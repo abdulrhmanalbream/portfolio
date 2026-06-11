@@ -5,10 +5,10 @@ export interface Project {
   id: string;
   title: string;
   category: string;
-  status: "ACTIVE" | "STABLE" | "DEPRECATED" | "PROTOTYPE" |"IN DEVELOPMENT"|"COMPLETED";
+  status: "ACTIVE" | "STABLE" | "DEPRECATED" | "PROTOTYPE" | "IN DEVELOPMENT" | "COMPLETED";
   description: string;
   tech: string[];
-  metrics: { label: string; value: string }[];
+  metrics?: { label: string; value: string }[];
   link?: string;
   github?: string;
 }

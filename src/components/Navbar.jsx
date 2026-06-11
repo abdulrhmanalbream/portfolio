@@ -19,11 +19,11 @@ export default function Navbar() {
       const hours = String(now.getHours()).padStart(2, '0');
       const minutes = String(now.getMinutes()).padStart(2, '0');
       const seconds = String(now.getSeconds()).padStart(2, '0');
-      
+
       const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
       setTime(`${year}-${month}-${date} ${hours}:${minutes}:${seconds} ${timeZone}`);
     }, 1000);
-    
+
     const latencyTimer = setInterval(() => {
       setLatency(prev => {
         const delta = Math.floor(Math.random() * 5) - 2;
@@ -40,7 +40,7 @@ export default function Navbar() {
   useEffect(() => {
     const handleScroll = () => {
       const sections = NAV_ITEMS.map(item => item.id)
-      
+
       for (let section of sections) {
         const element = document.getElementById(section)
         if (element) {
@@ -84,11 +84,10 @@ export default function Navbar() {
               href={`#${item.id}`}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className={`font-mono text-xs px-2 py-1 transition-all duration-300 tracking-wider rounded border ${
-                activeSection === item.id
-                  ? 'text-matrix-green border-matrix-green bg-matrix-green/10 text-glow shadow-lg'
-                  : 'text-text-dim hover:text-matrix-green border-transparent hover:border-matrix-green/50 hover:bg-matrix-green/5'
-              }`}
+              className={`font-mono text-xs px-2 py-1 transition-all duration-300 tracking-wider rounded border ${activeSection === item.id
+                ? 'text-matrix-green border-matrix-green bg-matrix-green/10 text-glow shadow-lg'
+                : 'text-text-dim hover:text-matrix-green border-transparent hover:border-matrix-green/50 hover:bg-matrix-green/5'
+                }`}
             >
               [{item.label}]
             </motion.a>
@@ -135,8 +134,8 @@ export default function Navbar() {
               >
                 [MENU]
               </button>
-            )}              
-            
+            )}
+
             <AnimatePresence>
               {isMenuOpen && (
                 <motion.div
@@ -152,11 +151,10 @@ export default function Navbar() {
                       href={`#${item.id}`}
                       onClick={handleNavItemClick}
                       whileHover={{ backgroundColor: 'rgba(0, 255, 100, 0.1)' }}
-                      className={`block font-mono text-xs px-4 py-2.5 transition-all duration-200 whitespace-nowrap ${
-                        activeSection === item.id
-                          ? 'text-matrix-green bg-matrix-green/10 border-l-2 border-matrix-green'
-                          : 'text-text-dim hover:text-matrix-green'
-                      }`}
+                      className={`block font-mono text-xs px-4 py-2.5 transition-all duration-200 whitespace-nowrap ${activeSection === item.id
+                        ? 'text-matrix-green bg-matrix-green/10 border-l-2 border-matrix-green'
+                        : 'text-text-dim hover:text-matrix-green'
+                        }`}
                     >
                       [{item.label}]
                     </motion.a>
