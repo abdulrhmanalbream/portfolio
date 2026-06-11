@@ -85,8 +85,8 @@ export default function Navbar() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className={`font-mono text-xs px-2 py-1 transition-all duration-300 tracking-wider rounded border ${activeSection === item.id
-                ? 'text-matrix-green border-matrix-green bg-matrix-green/10 text-glow shadow-lg'
-                : 'text-text-dim hover:text-matrix-green border-transparent hover:border-matrix-green/50 hover:bg-matrix-green/5'
+                  ? 'text-matrix-green border-matrix-green bg-matrix-green/10 text-glow shadow-lg'
+                  : 'text-text-dim hover:text-matrix-green border-transparent hover:border-matrix-green/50 hover:bg-matrix-green/5'
                 }`}
             >
               [{item.label}]
@@ -152,8 +152,8 @@ export default function Navbar() {
                       onClick={handleNavItemClick}
                       whileHover={{ backgroundColor: 'rgba(0, 255, 100, 0.1)' }}
                       className={`block font-mono text-xs px-4 py-2.5 transition-all duration-200 whitespace-nowrap ${activeSection === item.id
-                        ? 'text-matrix-green bg-matrix-green/10 border-l-2 border-matrix-green'
-                        : 'text-text-dim hover:text-matrix-green'
+                          ? 'text-matrix-green bg-matrix-green/10 border-l-2 border-matrix-green'
+                          : 'text-text-dim hover:text-matrix-green'
                         }`}
                     >
                       [{item.label}]
