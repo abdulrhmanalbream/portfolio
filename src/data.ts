@@ -63,7 +63,17 @@ export const PROJECTS: Project[] = [
       "Jetpack Compose",
       "Room Database",
       "WorkManager"
-    ]
+    ],
+
+    screenshots: [
+      { src: "/basira/hmoe_1.jpeg", alt: "Home Screen — Prayer time tracker & daily usage overview", isMobile: true },
+      { src: "/basira/home_2.jpeg", alt: "Analytics — Reports & app usage breakdown", isMobile: true },
+      { src: "/basira/apps.jpeg", alt: "App Manager — Category-based app control & limits", isMobile: true },
+      { src: "/basira/routines.jpeg", alt: "Routines — Custom schedules & focus sessions", isMobile: true },
+      { src: "/basira/settings.jpeg", alt: "Settings — Notification & system preferences", isMobile: true }
+    ],
+
+    figma: "https://www.figma.com/design/Uv2Gupa1iV3URhDJiWC5Pm/Basira?node-id=0-1&t=SBK6vpT9ZNYpOPC9-1"
   },
   {
     id: "smart-software",
@@ -84,6 +94,13 @@ export const PROJECTS: Project[] = [
       "PostgreSQL",
       "LangChain",
       "Express"
+    ],
+
+    screenshots: [
+      { src: "/smart-software/dashboard.jpeg", alt: "Dashboard — Project overview with task stats & progress" },
+      { src: "/smart-software/tasks.jpeg", alt: "Task Board — Kanban view with priority tracking" },
+      { src: "/smart-software/tasks_details.jpeg", alt: "Task Details — Detailed task view with assignments" },
+      { src: "/smart-software/ideas.jpeg", alt: "Ideas Module — AI-generated technical requirements document" }
     ]
   },  
   {
@@ -105,6 +122,13 @@ export const PROJECTS: Project[] = [
       "Python",
       "Gemini API",
       "ChromaDB"
+    ],
+
+    screenshots: [
+      { src: "/AI Books/home.jpeg", alt: "Search Engine — Semantic book search with grid results" },
+      { src: "/AI Books/AI_1.jpeg", alt: "AI Assistant — Research text analysis & recommendations" },
+      { src: "/AI Books/AI_2.jpeg", alt: "AI Analysis — Smart summaries & keyword extraction" },
+      { src: "/AI Books/sources_saved.jpeg", alt: "Saved Sources — Bookmarked research materials" }
     ]
   },
   {
@@ -126,6 +150,14 @@ export const PROJECTS: Project[] = [
       "D3.js",
       "Node.js",
       "Gemini"
+    ],
+
+    screenshots: [
+      { src: "/tebyan/dashboard.jpeg", alt: "Dashboard — Learning hub with stats & study streaks" },
+      { src: "/tebyan/mind_maps.jpeg", alt: "Mind Maps — Interactive knowledge graph builder" },
+      { src: "/tebyan/files.jpeg", alt: "File Manager — Organized study materials & notes" },
+      { src: "/tebyan/quiz.jpeg", alt: "Quiz System — AI-generated assessments" },
+      { src: "/tebyan/AI.jpeg", alt: "AI Assistant — Intelligent study companion" }
     ]
   }
 

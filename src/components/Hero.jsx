@@ -92,9 +92,9 @@ export default function Hero() {
 
             <motion.div
                 initial={{ opacity: 0 }}
-                animate={{ opacity: 0.3 }}
-                transition={{ delay: 3 }}
-                className="absolute bottom-4 left-1/2 -translate-x-1/2 font-mono text-xs text-text-dim"
+                animate={{ opacity: [0.3, 0.7, 0.3], y: [0, 6, 0] }}
+                transition={{ delay: 3, repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                className="font-mono text-[10px] md:text-xs text-matrix/60 tracking-widest text-glow mt-2 md:mt-6 select-none"
             >
                 {'<'}scroll.to.explore{'/>'}
             </motion.div>

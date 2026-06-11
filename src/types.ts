@@ -1,6 +1,12 @@
 import { ReactNode } from "react";
 
 // ========== PROJECT & PORTFOLIO TYPES ==========
+export interface ProjectScreenshot {
+  src: string;
+  alt: string;
+  isMobile?: boolean;
+}
+
 export interface Project {
   id: string;
   title: string;
@@ -8,9 +14,11 @@ export interface Project {
   status: "ACTIVE" | "STABLE" | "DEPRECATED" | "PROTOTYPE" | "IN DEVELOPMENT" | "COMPLETED";
   description: string;
   tech: string[];
+  screenshots?: ProjectScreenshot[];
   metrics?: { label: string; value: string }[];
   link?: string;
   github?: string;
+  figma?: string;
 }
 
 export interface Metric {
