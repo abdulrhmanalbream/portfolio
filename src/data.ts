@@ -353,25 +353,25 @@ export const NAV_ITEMS: NavItem[] = [
 export const SOCIAL_LINKS: SocialLink[] = [
   {
     name: 'GITHUB',
-    url: 'https://github.com/albrymbdalrhmn',
+    url: 'https://github.com/abdulrhmanalbream',
     icon: null // Will be rendered as SVG in component
   },
   {
     name: 'LINKEDIN',
-    url: 'https://linkedin.com/in/abdulrahman-alburaym/',
+    url: 'https://www.linkedin.com/in/abdulrhmanalbream/',
     icon: null
   },
   {
     name: 'EMAIL',
-    url: 'mailto:albrymbdalrhmn477@gmail.com',
+    url: 'mailto:abdulrhman.qt@gmail.com',
     icon: null
   }
 ];
 
 export const CONTACT_INFO: ContactInfo = {
-  email: 'albrymbdalrhmn477@gmail.com',
-  github: 'https://github.com/albrymbdalrhmn',
-  linkedin: 'https://linkedin.com/in/abdulrahman-alburaym/'
+  email: 'abdulrhman.qt@gmail.com',
+  github: 'https://github.com/abdulrhmanalbream',
+  linkedin: 'https://www.linkedin.com/in/abdulrhmanalbream/'
 };
 
 export const FOOTER_CONTENT: FooterContent = {
@@ -430,9 +430,9 @@ export const TERMINAL_CONTENT = {
   contactLabel: "ESTABLISHING SECURE PORTAL CHANNEL...",
   contactMessage: "Send secure transmission packet via the form below or standard routing protocols:",
   contactDetails: {
-    email: "albrymbdalrhmn477@gmail.com",
-    github: "https://github.com/albrymbdalrhmn",
-    linkedin: "https://linkedin.com/in/abdulrahman-alburaym/"
+    email: "abdulrhman.qt@gmail.com",
+    github: "https://github.com/abdulrhmanalbream",
+    linkedin: "https://www.linkedin.com/in/abdulrhmanalbream/"
   },
   pingMessage: {
     header: "PING gateway.alburaym.dev (1.1.1.1) 56(84) bytes of data.",
