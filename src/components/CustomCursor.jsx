@@ -6,39 +6,75 @@ export default function CustomCursor() {
   const [hovering, setHovering] = useState(false)
   const [clicking, setClicking] = useState(false)
   const [visible, setVisible] = useState(false)
+  const [enabled, setEnabled] = useState(false)
 
   useEffect(() => {
+    const finePointerQuery = window.matchMedia('(hover: hover) and (pointer: fine)')
+
+    const updateEnabled = () => {
+      setEnabled(finePointerQuery.matches)
+    }
+
+    const enter = () => setVisible(true)
     const move = (e) => {
+      if (e.pointerType && e.pointerType !== 'mouse') return
       setPos({ x: e.clientX, y: e.clientY })
       setVisible(true)
     }
     const over = () => setHovering(true)
     const out = () => setHovering(false)
-    const down = () => setClicking(true)
-    const up = () => setClicking(false)
+    const down = (e) => {
+      if (e.pointerType && e.pointerType !== 'mouse') return
+      setClicking(true)
+    }
+    const up = (e) => {
+      if (e.pointerType && e.pointerType !== 'mouse') return
+      setClicking(false)
+    }
     const leave = () => setVisible(false)
+    const hide = () => {
+      setVisible(false)
+      setHovering(false)
+      setClicking(false)
+    }
 
-    window.addEventListener('mousemove', move)
+    updateEnabled()
+
+    if (!finePointerQuery.matches) {
+      return undefined
+    }
+
+    window.addEventListener('pointermove', move)
     document.addEventListener('mouseleave', leave)
-    document.addEventListener('mouseenter', () => setVisible(true))
+    document.addEventListener('mouseenter', enter)
+    window.addEventListener('scroll', hide, { passive: true })
+    window.addEventListener('pointerdown', down)
+    window.addEventListener('pointerup', up)
+    finePointerQuery.addEventListener('change', updateEnabled)
 
     const interactives = document.querySelectorAll('a, button, input, textarea, [role="button"]')
     interactives.forEach(el => {
-      el.addEventListener('mouseenter', over)
-      el.addEventListener('mouseleave', out)
+      el.addEventListener('pointerenter', over)
+      el.addEventListener('pointerleave', out)
     })
-    window.addEventListener('mousedown', down)
-    window.addEventListener('mouseup', up)
 
     return () => {
-      window.removeEventListener('mousemove', move)
+      window.removeEventListener('pointermove', move)
       document.removeEventListener('mouseleave', leave)
-      window.removeEventListener('mousedown', down)
-      window.removeEventListener('mouseup', up)
+      document.removeEventListener('mouseenter', enter)
+      window.removeEventListener('scroll', hide)
+      window.removeEventListener('pointerdown', down)
+      window.removeEventListener('pointerup', up)
+      finePointerQuery.removeEventListener('change', updateEnabled)
+
+      interactives.forEach(el => {
+        el.removeEventListener('pointerenter', over)
+        el.removeEventListener('pointerleave', out)
+      })
     }
   }, [])
 
-  if (!visible) return null
+  if (!enabled || !visible) return null
 
   const size = clicking ? 8 : hovering ? 40 : 16
   const ringSize = hovering ? 40 : 32

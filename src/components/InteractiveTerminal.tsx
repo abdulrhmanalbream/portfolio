@@ -182,7 +182,7 @@ export function InteractiveTerminal() {
           </div>
         );
         break;
-
+      
       case "projects":
         out = (
           <div className="space-y-3 mt-1">

@@ -22,7 +22,7 @@ export default function App() {
   }, [])
   return (
     <div className="min-h-screen bg-bg">
-      {!isMobile && <CustomCursor />}
+      <CustomCursor />
       <Navbar />
       <main className="pt-10 md:pt-12">
         <Hero />

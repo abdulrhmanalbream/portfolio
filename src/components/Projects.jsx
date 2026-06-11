@@ -50,7 +50,7 @@ export default function Projects() {
             <h3 className="font-terminal text-lg md:text-xl text-text mb-2 group-hover:text-matrix transition-colors duration-300">
               {project.title}
             </h3>
-            <p className="font-mono text-xs md:text-sm text-text-dim leading-relaxed mb-4 line-clamp-3">
+            <p className="font-mono text-xs md:text-sm text-text-dim leading-relaxed mb-4">
               {project.description}
             </p>
             <div className="flex flex-wrap gap-2">
