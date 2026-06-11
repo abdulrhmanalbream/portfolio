@@ -1,4 +1,5 @@
 import { HelpCircle } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import CustomCursor from './components/CustomCursor'
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
@@ -11,9 +12,17 @@ import Footer from './components/Footer'
 import { InteractiveTerminal } from './components/InteractiveTerminal'
 
 export default function App() {
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768)
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
   return (
     <div className="min-h-screen bg-bg">
-      <CustomCursor />
+      {!isMobile && <CustomCursor />}
       <Navbar />
       <main className="pt-10 md:pt-12">
         <Hero />

@@ -28,8 +28,8 @@ export default function Hero() {
         <div className="w-full h-[1px] bg-matrix absolute top-[66%]" />
       </div>
 
-      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-matrix/20 to-transparent" />
-      <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-matrix/20 to-transparent" />
+      {/* <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-matrix/20 to-transparent" />
+      <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-matrix/20 to-transparent" /> */}
 
       {/* Main Content Grid */}
       <div className="w-full max-w-7xl flex flex-col md:flex-row items-center justify-between gap-8 md:gap-12 mb-10">
@@ -84,10 +84,10 @@ export default function Hero() {
           </motion.div>
         </div>
 
-        {/* Right Side: Neural Network - Larger */}
-        <div className="flex-1 w-full md:w-auto h-96 md:h-screen md:max-h-[600px]">
-          <NeuralNetwork />
-        </div>
+        {/* Right Side: Neural Network - Desktop Only */}
+          <div className="hidden md:block flex-1 w-full md:w-auto h-96 md:h-screen md:max-h-[600px]">
+            <NeuralNetwork />
+          </div>
       </div>
 
       <motion.div
