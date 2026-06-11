@@ -146,7 +146,7 @@ export default function Navbar() {
                   transition={{ duration: 0.2 }}
                   className="absolute right-0 top-full mt-2 bg-bg border border-matrix-green/30 rounded shadow-lg overflow-hidden min-w-max"
                 >
-                  {navItems.map((item) => (
+                  {NAV_ITEMS.map((item) => (
                     <motion.a
                       key={item.id}
                       href={`#${item.id}`}

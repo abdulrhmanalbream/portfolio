@@ -48,7 +48,7 @@ const socialLinks = [
   },
   {
     name: 'EMAIL',
-    url: CONTACT_INFO.email,
+    url: `mailto:${CONTACT_INFO.email}`,
     icon: SOCIAL_ICONS.EMAIL,
   },
 ];
@@ -60,11 +60,14 @@ export default function Contact() {
   const [error, setError] = useState('')
 
   const handleSocialClick = (url) => {
-    if (url.startsWith('mailto:')) {
-      window.location.href = url
-    } else {
-      window.open(url, '_blank')
+    const targetUrl = url.includes('@') && !url.startsWith('mailto:') ? `mailto:${url}` : url
+
+    if (targetUrl.startsWith('mailto:')) {
+      window.location.href = targetUrl
+      return
     }
+
+    window.open(targetUrl, '_blank')
   }
 
   const handleSubmit = async (e) => {
