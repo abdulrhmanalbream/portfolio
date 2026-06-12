@@ -28,6 +28,11 @@ const imageVariants = {
   exit: (dir) => ({ opacity: 0, x: dir > 0 ? -80 : 80, transition: { duration: 0.2 } }),
 }
 
+// Swipe-to-navigate: combine drag distance and velocity into a single "power"
+// value so a short fast flick counts the same as a long slow drag.
+const swipeConfidenceThreshold = 10000
+const swipePower = (offset, velocity) => Math.abs(offset) * velocity
+
 export default function ProjectModal({ project, isOpen, onClose }) {
   const { lang } = useLanguage()
   const m = UI[lang].modal
@@ -131,6 +136,16 @@ export default function ProjectModal({ project, isOpen, onClose }) {
                       animate="center"
                       exit="exit"
                       draggable={false}
+                      drag={total > 1 ? 'x' : false}
+                      dragConstraints={{ left: 0, right: 0 }}
+                      dragElastic={0.18}
+                      dragMomentum={false}
+                      style={total > 1 ? { cursor: 'grab' } : undefined}
+                      onDragEnd={(e, { offset, velocity }) => {
+                        const swipe = swipePower(offset.x, velocity.x)
+                        if (swipe < -swipeConfidenceThreshold) navigate(1)
+                        else if (swipe > swipeConfidenceThreshold) navigate(-1)
+                      }}
                     />
                   </AnimatePresence>
 
@@ -164,6 +179,34 @@ export default function ProjectModal({ project, isOpen, onClose }) {
                     <span dir="ltr">{n(String(total).padStart(2, '0'))}</span>
                   </div>
                 </div>
+
+                {/* Control bar below image (touch devices — keeps controls off the image) */}
+                {total > 1 && (
+                  <div className="project-modal__controls">
+                    <button
+                      className="project-modal__ctrl-btn"
+                      onClick={() => navigate(-1)}
+                      aria-label="Previous screenshot"
+                    >
+                      <ChevronLeft size={18} />
+                    </button>
+                    <div className="project-modal__ctrl-counter">
+                      <span className="project-modal__device-badge">
+                        {isMobile ? <Smartphone size={12} /> : <Monitor size={12} />}
+                      </span>
+                      <span dir="ltr">{n(String(currentIndex + 1).padStart(2, '0'))}</span>
+                      <span className="project-modal__counter-sep">/</span>
+                      <span dir="ltr">{n(String(total).padStart(2, '0'))}</span>
+                    </div>
+                    <button
+                      className="project-modal__ctrl-btn"
+                      onClick={() => navigate(1)}
+                      aria-label="Next screenshot"
+                    >
+                      <ChevronRight size={18} />
+                    </button>
+                  </div>
+                )}
 
                 {/* Caption */}
                 <div className="project-modal__caption">

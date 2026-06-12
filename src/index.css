@@ -335,6 +335,73 @@ body {
   color: rgba(0, 255, 0, 0.3);
 }
 
+/* Auto-hide controls: fade in only when hovering the image.
+   Applied only on pointer devices — on touch (no hover) they stay visible. */
+@media (hover: hover) {
+  .project-modal__nav,
+  .project-modal__counter {
+    opacity: 0;
+    transition: opacity 0.25s ease, color 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .project-modal__viewport:hover .project-modal__nav,
+  .project-modal__viewport:hover .project-modal__counter,
+  .project-modal__viewport:focus-within .project-modal__nav,
+  .project-modal__viewport:focus-within .project-modal__counter {
+    opacity: 1;
+  }
+}
+
+/* Touch devices: move the controls OFF the image into a bar below it. */
+.project-modal__controls {
+  display: none;
+}
+
+@media (hover: none) {
+  /* No hover on touch — the overlay arrows/counter can't be revealed, so hide
+     them and surface the controls in the bar below the image instead. */
+  .project-modal__nav,
+  .project-modal__counter {
+    display: none;
+  }
+
+  .project-modal__controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 10px;
+  }
+}
+
+.project-modal__ctrl-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 48px;
+  height: 40px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(0, 255, 0, 0.18);
+  color: #0F0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.project-modal__ctrl-btn:active {
+  background: rgba(0, 255, 0, 0.1);
+  border-color: rgba(0, 255, 0, 0.5);
+}
+
+.project-modal__ctrl-counter {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: #0F0;
+}
+
 /* Caption */
 .project-modal__caption {
   font-family: 'JetBrains Mono', monospace;
