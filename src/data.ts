@@ -355,10 +355,10 @@ export const TIMELINE_LOGS: TimelineLog[] = [
   {
     id: "mena-ml",
     timestamp: "2026-01-25",
-    event: "MENA MACHINE LEARNING PROGRAM",
+    event: "MENA ML PROGRAM",
     category: "RESEARCH",
     details:
-      "Selected as one of approximately 350 participants from more than 1,200 applicants in the MENA Machine Learning Program. Presented SmartSoftware and received valuable feedback from researchers and AI professionals."
+      "Selected as one of approximately 350 participants from more than 1,200 applicants in the MENA ML Program. Presented SmartSoftware and received valuable feedback from researchers and AI professionals."
   },
 
   {
