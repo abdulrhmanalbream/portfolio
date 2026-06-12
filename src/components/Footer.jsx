@@ -19,8 +19,16 @@ export default function Footer() {
         <div className="font-mono text-xs text-text-dim">
           <span className="text-matrix">{'>'}</span> {ui.footer.shutdown} <span className="text-matrix/40">[{ui.footer.buildInfo}]</span>
         </div>
-        <div className="font-mono text-xs text-text-dim">
-          {ui.footer.builtWith} {FOOTER_CONTENT.techStack}
+        <div className="flex items-center gap-4">
+          <a
+            href="#/links"
+            className="font-mono text-xs text-matrix/70 hover:text-matrix transition-colors"
+          >
+            ~/links ↗
+          </a>
+          <span className="font-mono text-xs text-text-dim">
+            {ui.footer.builtWith} {FOOTER_CONTENT.techStack}
+          </span>
         </div>
       </div>
     </motion.footer>

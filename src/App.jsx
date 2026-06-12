@@ -10,9 +10,13 @@ import Timeline from './components/Timeline'
 import Contact from './components/Contact'
 import Footer from './components/Footer'
 import { InteractiveTerminal } from './components/InteractiveTerminal'
+import LinksPage from './components/LinksPage'
 
 export default function App() {
   const [isMobile, setIsMobile] = useState(false)
+  // Minimal hash router — no dependency, works on any static host.
+  // The linktree lives at #/links; everything else renders the portfolio.
+  const [route, setRoute] = useState(() => window.location.hash)
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768)
@@ -20,6 +24,30 @@ export default function App() {
     window.addEventListener('resize', checkMobile)
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
+
+  useEffect(() => {
+    const onHash = () => setRoute(window.location.hash)
+    window.addEventListener('hashchange', onHash)
+    return () => window.removeEventListener('hashchange', onHash)
+  }, [])
+
+  // Route back to the portfolio home ("/") without a full reload, clean URL.
+  const goHome = () => {
+    if (window.location.hash) {
+      window.history.replaceState(null, '', window.location.pathname)
+    }
+    setRoute('')
+  }
+
+  if (route.startsWith('#/links')) {
+    return (
+      <>
+        <CustomCursor />
+        <LinksPage onHome={goHome} />
+      </>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-bg">
       <CustomCursor />
