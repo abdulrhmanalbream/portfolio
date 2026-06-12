@@ -81,12 +81,12 @@ export const PROJECTS: Project[] = [
     title: "SmartSoftware",
 
     category:
-      "AI AGENT WORKFLOW PLATFORM",
+      "AI-POWERED PROJECT MANAGEMENT PLATFORM",
 
     status: "IN DEVELOPMENT",
 
     description:
-      "An AI-powered software management platform that assists development teams in planning sprints, assigning tasks, estimating workloads, and identifying potential bottlenecks using intelligent agent workflows.",
+      "An AI-powered project management platform designed to bridge communication and workflow gaps between organizations, teams, designers, and clients. The platform streamlines sprint planning, task delegation, and workload estimations, fostering collaboration across all stakeholders.",
 
     tech: [
       "React",
