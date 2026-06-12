@@ -12,8 +12,11 @@
   --color-text-dim: #5a5a5a;
   --color-border: #1a1a1a;
   --color-border-glow: #0F0;
-  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
-  --font-terminal: 'VT323', monospace;
+  /* IBM Plex Sans Arabic is appended as a fallback: Latin glyphs still render
+     in JetBrains Mono / VT323 (those win for Latin), while Arabic glyphs —
+     which the mono fonts lack — automatically fall through to it. */
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'IBM Plex Sans Arabic', monospace;
+  --font-terminal: 'VT323', 'IBM Plex Sans Arabic', monospace;
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -24,6 +27,28 @@
 
 html {
   scroll-behavior: smooth;
+}
+
+/* ==========================================
+   RTL / ARABIC MODE
+   Activated when <html dir="rtl" lang="ar"> (set by LanguageContext).
+   ========================================== */
+
+/* Arabic script is cursive: the Latin `tracking-*` (letter-spacing) utilities
+   break the letter joins, so neutralise them while in Arabic mode. English
+   chrome loses a little tracking here too, which is an acceptable trade. */
+html[dir="rtl"] [class*="tracking-"] {
+  letter-spacing: 0;
+}
+
+/* Slightly roomier line-height for comfortable Arabic reading. */
+html[dir="rtl"] body {
+  line-height: 1.7;
+}
+
+/* The terminal is intentionally kept English + LTR even in Arabic mode. */
+[dir="ltr"] {
+  text-align: left;
 }
 
 body {

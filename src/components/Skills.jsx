@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
-import { SKILL_CATEGORIES } from '../data'
+import { useContent } from '../i18n/useContent'
+import SectionHeader from './SectionHeader'
 
 const SkillIcon = ({ type }) => {
   const svgMap = {
@@ -48,22 +49,10 @@ const getIconType = (id) => {
 }
 
 export default function Skills() {
+  const { SKILL_CATEGORIES } = useContent()
   return (
     <section id="skills" className="px-4 md:px-8 lg:px-16 py-16 md:py-24 relative">
-      <motion.div
-        initial={{ opacity: 0, x: -20 }}
-        whileInView={{ opacity: 1, x: 0 }}
-        viewport={{ once: true, margin: '-100px' }}
-        transition={{ duration: 0.5 }}
-        className="mb-8 md:mb-12"
-      >
-        <div className="font-mono text-xs text-text-dim tracking-widest mb-2">
-          {'// '}PROTOCOL_LIST
-        </div>
-        <h2 className="font-terminal text-2xl md:text-3xl lg:text-4xl text-matrix text-glow tracking-wider">
-          {'<'}SKILLS{'/>'}
-        </h2>
-      </motion.div>
+      <SectionHeader section="skills" />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
         {SKILL_CATEGORIES.map((cat, i) => (

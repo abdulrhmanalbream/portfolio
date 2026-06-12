@@ -1,10 +1,11 @@
 import { useEffect } from 'react'
 import NeuralNetwork from './NeuralNetwork'
 import { useTypingEffect, useSteppedReveal } from './Animations'
-import { HERO_CONTENT } from '../data'
+import { useContent } from '../i18n/useContent'
 import { motion } from 'framer-motion'
 
 export default function Hero() {
+    const { HERO_CONTENT, ui } = useContent()
     const typedText = useTypingEffect(
         HERO_CONTENT.lines,
         HERO_CONTENT.typingSpeed,
@@ -34,14 +35,14 @@ export default function Hero() {
             {/* Main Content Grid */}
             <div className="w-full max-w-7xl flex flex-col md:flex-row items-center justify-between gap-8 md:gap-0 mb-10">
                 {/* Left Side: Text Content */}
-                <div className="w-full md:w-[35%] flex flex-col items-center md:items-start text-center md:text-left justify-center">
+                <div className="w-full md:w-[35%] flex flex-col items-center md:items-start text-center md:text-start justify-center">
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ duration: 0.6, delay: 0.2 }}
                         className="mb-6 md:mb-8 text-text-dim font-terminal text-xs md:text-base tracking-widest"
                     >
-                        <span className="text-matrix">{'>'}</span> Initialize... Build_Intelligent_Systems<span className="cursor-blink text-matrix">_</span>
+                        <span className="text-matrix">{'>'}</span> {ui.hero.tagline}<span className="cursor-blink text-matrix">_</span>
                     </motion.div>
 
                     <motion.div
@@ -52,7 +53,7 @@ export default function Hero() {
                     >
                         <div className="font-terminal text-2xl md:text-3xl lg:text-4xl leading-relaxed md:leading-relaxed">
                             <span className="text-emerald text-glow-strong">{typedText}</span>
-                            <span className="cursor-blink text-matrix ml-0.5">█</span>
+                            <span className="cursor-blink text-matrix ms-0.5">█</span>
                         </div>
                         <motion.div
                             initial={{ opacity: 0 }}
@@ -61,7 +62,7 @@ export default function Hero() {
                             className="mt-6 text-text-dim text-xs md:text-sm"
                         >
                             {visibleCount >= HERO_CONTENT.lines.length && (
-                                <span className="text-matrix/60">{'// '}system.ready — accepting input</span>
+                                <span className="text-matrix/60">{ui.hero.ready}</span>
                             )}
                         </motion.div>
                     </motion.div>
@@ -96,7 +97,7 @@ export default function Hero() {
                 transition={{ delay: 3, repeat: Infinity, duration: 2, ease: "easeInOut" }}
                 className="font-mono text-[10px] md:text-xs text-matrix/60 tracking-widest text-glow mt-2 md:mt-6 select-none"
             >
-                {'<'}scroll.to.explore{'/>'}
+                <span dir="ltr">{'<'}{ui.hero.scroll}{'/>'}</span>
             </motion.div>
         </section>
     )

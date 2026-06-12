@@ -26,8 +26,10 @@ export default function App() {
       <Navbar />
       <main className="pt-10 md:pt-12">
         <Hero />
-        {/* Dynamic Interactive Shell Emulator Panel */}
-        <section className="py-6 select-none mx-auto w-full">
+        {/* Dynamic Interactive Shell Emulator Panel.
+            Forced LTR + English in every language mode — a terminal reads
+            left-to-right and its commands/ASCII output are Latin by nature. */}
+        <section dir="ltr" className="py-6 select-none mx-auto w-full text-left">
           {/* <div className="text-left font-mono text-[10px] text-matrix-green/50 tracking-wider mb-2 flex items-center gap-1.5 pl-1.5">
             <HelpCircle size={12} />
             <span>INTERACTIVE SHELL PARSER EMULATOR (OPTIONAL TYPING SUPPORTED)</span>

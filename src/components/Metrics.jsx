@@ -1,23 +1,12 @@
 import { motion } from 'framer-motion'
-import { METRICS } from '../data'
+import { useContent } from '../i18n/useContent'
+import SectionHeader from './SectionHeader'
 
 export default function Metrics() {
+  const { METRICS, n } = useContent()
   return (
     <section id="metrics" className="px-4 md:px-8 lg:px-16 py-16 md:py-24 relative">
-      <motion.div
-        initial={{ opacity: 0, x: -20 }}
-        whileInView={{ opacity: 1, x: 0 }}
-        viewport={{ once: true, margin: '-100px' }}
-        transition={{ duration: 0.5 }}
-        className="mb-8 md:mb-12"
-      >
-        <div className="font-mono text-xs text-text-dim tracking-widest mb-2">
-          {'// '}PERFORMANCE_INDICATORS
-        </div>
-        <h2 className="font-terminal text-2xl md:text-3xl lg:text-4xl text-matrix text-glow tracking-wider">
-          {'<'}METRICS{'/>'}
-        </h2>
-      </motion.div>
+      <SectionHeader section="metrics" />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
         {METRICS.map((m, i) => (
@@ -30,14 +19,16 @@ export default function Metrics() {
             className="card-glow relative overflow-hidden bg-bg-card p-5 md:p-6 glint-effect group"
           >
             <div className="font-mono text-xs text-emerald tracking-widest mb-2">
-              {m.id.toUpperCase().replace(/-/g, '_')}
+              {m.code ?? m.id.toUpperCase().replace(/-/g, '_')}
             </div>
             <h3 className="font-terminal text-lg md:text-xl text-text mb-4 group-hover:text-matrix transition-colors">
               {m.label}
             </h3>
 
             <div className="font-terminal text-3xl md:text-4xl lg:text-5xl text-emerald text-glow-strong mb-2">
-              {m.value}
+              {/* dir=ltr isolates the value so symbols like <, +, / keep their
+                  order and don't bidi-mirror in Arabic/RTL mode. */}
+              <span dir="ltr" className="inline-block">{m.value}</span>
             </div>
 
             <div className="font-mono text-xs text-text-dim mb-4 leading-relaxed">
@@ -62,8 +53,8 @@ export default function Metrics() {
                 className="h-full bg-gradient-to-r from-matrix-green to-emerald"
               />
             </div>
-            <div className="mt-1 text-[10px] text-text-dim text-right font-mono">
-              {m.progressPercent}%
+            <div className="mt-1 text-[10px] text-text-dim text-end font-mono">
+              {n(m.progressPercent)}%
             </div>
           </motion.div>
         ))}

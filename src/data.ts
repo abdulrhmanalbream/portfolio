@@ -1,7 +1,7 @@
-import { 
-  Project, 
-  Metric, 
-  SkillCategory, 
+import {
+  Project,
+  Metric,
+  SkillCategory,
   TimelineLog,
   HeroContent,
   NavItem,
@@ -102,7 +102,7 @@ export const PROJECTS: Project[] = [
       { src: "/smart-software/tasks_details.jpeg", alt: "Task Details — Detailed task view with assignments" },
       { src: "/smart-software/ideas.jpeg", alt: "Ideas Module — AI-generated technical requirements document" }
     ]
-  },  
+  },
   {
     id: "ai-books-library",
 
@@ -165,15 +165,15 @@ export const PROJECTS: Project[] = [
 
 export const METRICS: Metric[] = [
   {
-    id: "HEALTHCARE_SERVING",
-    label: "Al-Madinah Care Integration",
+    id: "STUDENT_HOUSING",
+    label: "Student Housing Management System",
     value: "400+",
-    subValue: "ACTIVE CLINICS & USER PROFILES",
+    subValue: "STUDENT RECORDS & HOUSING OPERATIONS",
     glowColor: "green",
-    progressPercent: 88,
+    progressPercent: 100,
     readouts: [
-      { label: "SYS_STABILITY", value: "99.98%" },
-      { label: "DB_TRANSACTIONS", value: "Secure SSL" }
+      { label: "ACTIVE_USERS", value: "400+" },
+      { label: "SYSTEM_SECURITY", value: "Secure" }
     ]
   },
   {
@@ -191,7 +191,7 @@ export const METRICS: Metric[] = [
   {
     id: "ANDROID_WELLBEING",
     label: "Basira App (Digital Well-being)",
-    value: "< 100MB",
+    value: "> 100MB",
     subValue: "ANDROID WELLBEING SYSTEM",
     glowColor: "green",
     progressPercent: 90,
@@ -301,10 +301,10 @@ export const TIMELINE_LOGS: TimelineLog[] = [
   {
     id: "housing-system",
     timestamp: "2025-03-15",
-    event: "HOUSING MANAGEMENT SYSTEM",
+    event: "Al-Madinah Student Care Association",
     category: "FULLSTACK",
     details:
-      "Worked as a Full-Stack Developer with Al-Madinah Student Care Association. Built a housing management system serving more than 400 users for student housing allocation and data management."
+      "Worked as a Full-Stack Developer with a student support association in Madinah. Built a housing management system serving more than 400 students for accommodation allocation and data management."
   },
 
   {
@@ -419,6 +419,7 @@ export const TERMINAL_HELP: TerminalHelpText = {
     { command: "education", description: "Academic information" },
     { command: "certifications", description: "Professional achievements" },
     { command: "projects", description: "Project portfolio" },
+    { command: "view <id>", description: "Open project gallery" },
     { command: "skills", description: "Technical competencies" },
     { command: "timeline", description: "Development journey" },
     { command: "contact", description: "Contact information" },

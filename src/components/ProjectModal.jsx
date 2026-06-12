@@ -1,6 +1,9 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useEffect, useCallback } from 'react'
 import { X, ChevronLeft, ChevronRight, Monitor, Smartphone, Figma, ExternalLink } from 'lucide-react'
+import { useLanguage } from '../i18n/LanguageContext'
+import { UI } from '../i18n/translations'
+import { toArabicDigits } from '../i18n/digits'
 
 const overlayVariants = {
   hidden: { opacity: 0 },
@@ -26,6 +29,9 @@ const imageVariants = {
 }
 
 export default function ProjectModal({ project, isOpen, onClose }) {
+  const { lang } = useLanguage()
+  const m = UI[lang].modal
+  const n = lang === 'ar' ? toArabicDigits : (x) => x
   const [currentIndex, setCurrentIndex] = useState(0)
   const [direction, setDirection] = useState(0)
 
@@ -101,7 +107,7 @@ export default function ProjectModal({ project, isOpen, onClose }) {
               </div>
               <button className="project-modal__close" onClick={onClose} aria-label="Close modal">
                 <X size={18} />
-                <span>[ESC]</span>
+                <span>{m.close}</span>
               </button>
             </div>
 
@@ -153,9 +159,9 @@ export default function ProjectModal({ project, isOpen, onClose }) {
                     <span className="project-modal__device-badge">
                       {isMobile ? <Smartphone size={12} /> : <Monitor size={12} />}
                     </span>
-                    <span>{String(currentIndex + 1).padStart(2, '0')}</span>
+                    <span dir="ltr">{n(String(currentIndex + 1).padStart(2, '0'))}</span>
                     <span className="project-modal__counter-sep">/</span>
-                    <span>{String(total).padStart(2, '0')}</span>
+                    <span dir="ltr">{n(String(total).padStart(2, '0'))}</span>
                   </div>
                 </div>
 
@@ -190,7 +196,7 @@ export default function ProjectModal({ project, isOpen, onClose }) {
             <div className="project-modal__info">
               <div className="project-modal__meta">
                 <span className={`project-modal__status project-modal__status--${project.status.replace(/\s+/g, '-').toLowerCase()}`}>
-                  {project.status}
+                  {UI[lang].status[project.status] ?? project.status}
                 </span>
                 {project.figma && (
                   <a
@@ -200,7 +206,7 @@ export default function ProjectModal({ project, isOpen, onClose }) {
                     className="project-modal__figma-link"
                   >
                     <Figma size={13} />
-                    <span>View Figma Design</span>
+                    <span>{m.viewFigma}</span>
                     <ExternalLink size={11} />
                   </a>
                 )}
@@ -215,8 +221,8 @@ export default function ProjectModal({ project, isOpen, onClose }) {
 
             {/* ── Footer hint ── */}
             <div className="project-modal__footer">
-              <span>← → navigate</span>
-              <span>ESC close</span>
+              <span dir="ltr">← → {m.navigate}</span>
+              <span>{m.escClose}</span>
             </div>
           </motion.div>
         </motion.div>

@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
-import { CommandResponse } from "../types";
+import { CommandResponse, Project } from "../types";
 import { PROJECTS, METRICS, SKILL_CATEGORIES, TIMELINE_LOGS, TERMINAL_HELP, TERMINAL_CONTENT } from "../data";
 import { motion } from "framer-motion";
+import ProjectModal from "./ProjectModal";
 
 // Diagnostics Typing Animation Component with Multi-Color Support
 interface DiagnosticsPart {
@@ -82,6 +83,7 @@ export function InteractiveTerminal() {
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
   const [userIp, setUserIp] = useState("127.0.0.1");
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -107,6 +109,10 @@ export function InteractiveTerminal() {
     }
   }, [history]);
 
+  const openProjectModal = (proj: Project) => {
+    setSelectedProject(proj);
+  };
+
   const handleCommand = (cmdStr: string) => {
     const trimmed = cmdStr.trim().toLowerCase();
     if (!trimmed) return;
@@ -114,6 +120,63 @@ export function InteractiveTerminal() {
     if (trimmed === "clear") {
       setHistory([]);
       setInputVal("");
+      return;
+    }
+
+    // Handle "view <project>" command
+    if (trimmed.startsWith("view ")) {
+      const projectQuery = trimmed.slice(5).trim();
+      const foundProject = PROJECTS.find(
+        (p) =>
+          p.id.toLowerCase() === projectQuery ||
+          p.title.toLowerCase() === projectQuery ||
+          p.title.toLowerCase().replace(/\s+/g, "-") === projectQuery
+      );
+
+      if (foundProject) {
+        if (foundProject.screenshots && foundProject.screenshots.length > 0) {
+          setHistory((prev) => [
+            ...prev,
+            {
+              command: cmdStr,
+              output: (
+                <p className="text-matrix-green text-xs font-mono">
+                  LOADING GALLERY: {foundProject.title} — {foundProject.screenshots.length} screenshot{foundProject.screenshots.length > 1 ? "s" : ""} found...
+                </p>
+              ),
+              timestamp: new Date().toLocaleTimeString(),
+            },
+          ]);
+          setInputVal("");
+          setTimeout(() => openProjectModal(foundProject), 300);
+        } else {
+
+          setHistory((prev) => [
+            ...prev,
+            {
+              command: cmdStr,
+              output: <p className="text-yellow-500 text-xs font-mono">NO MEDIA FOUND: '{foundProject.title}' has no attached screenshots.</p>,
+              timestamp: new Date().toLocaleTimeString(),
+            },
+          ]);
+          setInputVal("");
+        }
+      } else {
+        setHistory((prev) => [
+          ...prev,
+          {
+            command: cmdStr,
+            output: (
+              <div className="text-xs font-mono space-y-1">
+                <p className="text-red-500">PROJECT NOT FOUND: '{projectQuery}'</p>
+                <p className="text-neutral-500">Available projects: {PROJECTS.map((p) => p.id).join(", ")}</p>
+              </div>
+            ),
+            timestamp: new Date().toLocaleTimeString(),
+          },
+        ]);
+        setInputVal("");
+      }
       return;
     }
 
@@ -306,7 +369,7 @@ export function InteractiveTerminal() {
           <div className="space-y-3 mt-1">
             <p className="text-zinc-400 text-xs">{TERMINAL_CONTENT.projectsLabel}</p>
             {PROJECTS.map((proj, idx) => (
-              <div key={proj.id} className="border-l border-matrix-green/30 pl-3 py-1 space-y-1">
+              <div key={proj.id} className="border-l border-matrix-green/30 pl-3 py-1 space-y-1.5">
                 <div className="flex justify-between text-xs font-semibold">
                   <span className="text-matrix-green font-mono">[{idx + 1}] {proj.title}</span>
                   <span className="text-neutral-500">[STATUS: {proj.status}]</span>
@@ -320,8 +383,32 @@ export function InteractiveTerminal() {
                     </span>
                   ))}
                 </div>
+
+                {/* Action buttons row */}
+                <div className="flex items-center gap-2 pt-0.5">
+                  {proj.screenshots && proj.screenshots.length > 0 && (
+                    <button
+                      onClick={() => handleShortcutClick(`view ${proj.id}`)}
+                      className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded border border-cyan-500/25 hover:border-cyan-400 hover:bg-cyan-400/10 text-cyan-400 text-[10px] font-mono transition duration-200 cursor-pointer"
+                    >
+                      [view {proj.id}]
+                      <span className="text-neutral-600">{proj.screenshots.length} screenshots</span>
+                    </button>
+                  )}
+                  {proj.figma && (
+                    <a
+                      href={proj.figma}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded border border-purple-400/25 hover:border-purple-400 hover:bg-purple-400/10 text-purple-400 text-[10px] font-mono transition duration-200"
+                    >
+                      [figma] ↗
+                    </a>
+                  )}
+                </div>
               </div>
             ))}
+            <p className="text-neutral-600 text-[10px] font-mono mt-2">TIP: Type 'view &lt;project_id&gt;' to open gallery. Example: view basira</p>
           </div>
         );
         break;
@@ -602,6 +689,13 @@ export function InteractiveTerminal() {
           </form>
         )}
       </div>
+
+      {/* Project Gallery Modal (opened from terminal) */}
+      <ProjectModal
+        project={selectedProject}
+        isOpen={!!selectedProject}
+        onClose={() => setSelectedProject(null)}
+      />
     </section>
   );
 }

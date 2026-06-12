@@ -1,7 +1,10 @@
 import { motion } from 'framer-motion'
 import { FOOTER_CONTENT } from '../data'
+import { useContent } from '../i18n/useContent'
 
 export default function Footer() {
+  const { ui, n } = useContent()
+  const year = new Date().getFullYear()
   return (
     <motion.footer
       initial={{ opacity: 0 }}
@@ -11,13 +14,13 @@ export default function Footer() {
     >
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="font-mono text-xs text-text-dim">
-          {'// '}{FOOTER_CONTENT.copyright}
+          {'// '}{ui.footer.name} — {n(year)}
         </div>
         <div className="font-mono text-xs text-text-dim">
-          <span className="text-matrix">{'>'}</span> system.shutdown() <span className="text-matrix/40">[{FOOTER_CONTENT.buildInfo}]</span>
+          <span className="text-matrix">{'>'}</span> {ui.footer.shutdown} <span className="text-matrix/40">[{ui.footer.buildInfo}]</span>
         </div>
         <div className="font-mono text-xs text-text-dim">
-          built_with: {FOOTER_CONTENT.techStack}
+          {ui.footer.builtWith} {FOOTER_CONTENT.techStack}
         </div>
       </div>
     </motion.footer>

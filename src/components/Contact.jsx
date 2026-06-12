@@ -1,6 +1,8 @@
 import { motion } from 'framer-motion'
 import { useState } from 'react'
 import { CONTACT_INFO } from '../data'
+import { useContent } from '../i18n/useContent'
+import SectionHeader from './SectionHeader'
 import emailjs from '@emailjs/browser'
 
 // Read EmailJS config from Vite env variables (create .env or .env.local)
@@ -54,6 +56,8 @@ const socialLinks = [
 ];
 
 export default function Contact() {
+  const { ui } = useContent()
+  const c = ui.contact
   const [formData, setFormData] = useState({ name: '', email: '', message: '' })
   const [submitted, setSubmitted] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -74,7 +78,7 @@ export default function Contact() {
     e.preventDefault()
     
     if (!formData.name || !formData.email || !formData.message) {
-      setError('Please fill in all fields')
+      setError(c.errorFields)
       return
     }
 
@@ -107,7 +111,7 @@ export default function Contact() {
       setTimeout(() => setSubmitted(false), 3000)
     } catch (err) {
       console.error('Email send failed:', err)
-      setError('Failed to send message. Please try again.')
+      setError(c.errorSend)
     } finally {
       setIsLoading(false)
     }
@@ -115,20 +119,7 @@ export default function Contact() {
 
   return (
     <section id="contact" className="px-4 md:px-8 lg:px-16 py-16 md:py-24 relative">
-      <motion.div
-        initial={{ opacity: 0, x: -20 }}
-        whileInView={{ opacity: 1, x: 0 }}
-        viewport={{ once: true, margin: '-100px' }}
-        transition={{ duration: 0.5 }}
-        className="mb-8 md:mb-12"
-      >
-        <div className="font-mono text-xs text-text-dim tracking-widest mb-2">
-          {'// '}SECURE_TRANSMISSION
-        </div>
-        <h2 className="font-terminal text-2xl md:text-3xl lg:text-4xl text-matrix text-glow tracking-wider">
-          {'<'}CONTACT{'/>'}
-        </h2>
-      </motion.div>
+      <SectionHeader section="contact" />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
         <motion.div
@@ -139,38 +130,38 @@ export default function Contact() {
           className="card-glow bg-bg-card p-5 md:p-6 relative overflow-hidden glint-effect"
         >
           <div className="font-mono text-xs text-matrix mb-4 tracking-widest">
-            SECURE CONNECTION OPENED <span className="cursor-blink">█</span>
+            {c.connectionOpened} <span className="cursor-blink">█</span>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="font-mono text-xs text-text-dim mb-1 block">IDENTIFIER:</label>
+              <label className="font-mono text-xs text-text-dim mb-1 block">{c.identifier}</label>
               <input
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 className="w-full bg-bg border border-border focus:border-matrix px-3 py-2 font-mono text-sm text-text outline-none transition-colors"
-                placeholder="enter_name..."
+                placeholder={c.placeholderName}
               />
             </div>
             <div>
-              <label className="font-mono text-xs text-text-dim mb-1 block">CHANNEL:</label>
+              <label className="font-mono text-xs text-text-dim mb-1 block">{c.channel}</label>
               <input
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 className="w-full bg-bg border border-border focus:border-matrix px-3 py-2 font-mono text-sm text-text outline-none transition-colors"
-                placeholder="enter_email..."
+                placeholder={c.placeholderEmail}
               />
             </div>
             <div>
-              <label className="font-mono text-xs text-text-dim mb-1 block">TRANSMISSION:</label>
+              <label className="font-mono text-xs text-text-dim mb-1 block">{c.transmission}</label>
               <textarea
                 value={formData.message}
                 onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                 rows={4}
                 className="w-full bg-bg border border-border focus:border-matrix px-3 py-2 font-mono text-sm text-text outline-none transition-colors resize-none"
-                placeholder="enter_message..."
+                placeholder={c.placeholderMessage}
               />
             </div>
             {error && (
@@ -183,7 +174,7 @@ export default function Contact() {
               disabled={isLoading || submitted}
               className="card-glow w-full py-3 font-mono text-matrix text-sm tracking-wider bg-bg-card hover:bg-emerald-dim/20 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {submitted ? '[TRANSMITTED ✓]' : isLoading ? '[TRANSMITTING...]' : '[TRANSMIT]'}
+              {submitted ? c.transmitted : isLoading ? c.transmitting : c.transmit}
             </button>
           </form>
 
@@ -191,9 +182,9 @@ export default function Contact() {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="absolute top-2 right-2 font-mono text-xs text-matrix"
+              className="absolute top-2 end-2 font-mono text-xs text-matrix"
             >
-              {'// '}packet_sent
+              {c.packetSent}
             </motion.div>
           )}
         </motion.div>
@@ -206,7 +197,7 @@ export default function Contact() {
           className="card-glow bg-bg-card p-5 md:p-6 flex flex-col items-center justify-center gap-6"
         >
           <div className="font-mono text-xs text-text-dim tracking-widest text-center">
-            {'// '}AVAILABLE_CHANNELS
+            {c.availableChannels}
           </div>
 
           <div className="flex gap-6">
@@ -228,14 +219,14 @@ export default function Contact() {
                   {link.icon}
                 </motion.div>
                 <span className="font-mono text-xs text-text-dim group-hover:text-matrix transition-colors">
-                  {link.name}
+                  {c.channels[link.name] ?? link.name}
                 </span>
               </motion.button>
             ))}
           </div>
 
           <div className="font-mono text-xs text-text-dim text-center mt-4">
-            <span className="text-matrix">{'>'}</span> awaiting_connection<span className="cursor-blink">_</span>
+            <span className="text-matrix">{'>'}</span> {c.awaiting}<span className="cursor-blink">_</span>
           </div>
         </motion.div>
       </div>

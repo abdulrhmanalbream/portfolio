@@ -1,8 +1,9 @@
 import { motion } from 'framer-motion'
 import { useRef, useState } from 'react'
-import { PROJECTS } from '../data'
+import { useContent } from '../i18n/useContent'
 import { Images, Figma, ExternalLink } from 'lucide-react'
 import ProjectModal from './ProjectModal'
+import SectionHeader from './SectionHeader'
 
 const cardVariants = {
   hidden: { opacity: 0, y: 30 },
@@ -16,23 +17,11 @@ const cardVariants = {
 export default function Projects() {
   const ref = useRef(null)
   const [selectedProject, setSelectedProject] = useState(null)
+  const { PROJECTS, ui, n } = useContent()
 
   return (
     <section id="projects" className="px-4 md:px-8 lg:px-16 py-16 md:py-24 relative">
-      <motion.div
-        initial={{ opacity: 0, x: -20 }}
-        whileInView={{ opacity: 1, x: 0 }}
-        viewport={{ once: true, margin: '-100px' }}
-        transition={{ duration: 0.5 }}
-        className="mb-8 md:mb-12"
-      >
-        <div className="font-mono text-xs text-text-dim tracking-widest mb-2">
-          {'// '}DATA_MODULES
-        </div>
-        <h2 className="font-terminal text-2xl md:text-3xl lg:text-4xl text-matrix text-glow tracking-wider">
-          {'<'}PROJECTS{'/>'}
-        </h2>
-      </motion.div>
+      <SectionHeader section="projects" />
 
       <div ref={ref} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
         {PROJECTS.map((project, i) => (
@@ -55,9 +44,9 @@ export default function Projects() {
 
             {/* Screenshot preview badge */}
             {project.screenshots?.length > 0 && (
-              <div className="absolute top-3 right-3 flex items-center gap-1.5 px-2 py-1 bg-matrix/5 border border-matrix/15 font-mono text-[10px] text-matrix/60 group-hover:text-matrix group-hover:border-matrix/40 transition-all duration-300">
+              <div className="absolute top-3 end-3 flex items-center gap-1.5 px-2 py-1 bg-matrix/5 border border-matrix/15 font-mono text-[10px] text-matrix/60 group-hover:text-matrix group-hover:border-matrix/40 transition-all duration-300">
                 <Images size={11} />
-                <span>{project.screenshots.length}</span>
+                <span>{n(project.screenshots.length)}</span>
               </div>
             )}
 
@@ -96,7 +85,7 @@ export default function Projects() {
                 <div />
               )}
               <div className="font-mono text-xs text-text-dim opacity-0 group-hover:opacity-100 transition-opacity">
-                {'>>'} view_module
+                {ui.projectCard.viewModule}
               </div>
             </div>
           </motion.div>
