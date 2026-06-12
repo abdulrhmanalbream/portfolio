@@ -50,12 +50,12 @@ export const PROJECTS: Project[] = [
     title: "Basira",
 
     category:
-      "ANDROID DIGITAL WELLBEING PLATFORM",
+      "ANDROID DIGITAL FOCUS & SHORTS BLOCKER",
 
     status: "COMPLETED",
 
     description:
-      "An Android digital wellbeing platform designed to help users reduce excessive screen usage and build healthier digital habits. The system monitors application usage, provides behavioral insights, and applies intelligent intervention mechanisms while maintaining minimal resource consumption.",
+      "An Android digital balance and focus application designed to block short-form videos (Shorts) and distracting apps at scheduled times. It features active lockout sessions, usage behavior analysis, and custom scheduling options, all while maintaining highly optimized battery and system efficiency.",
 
     tech: [
       "Kotlin",
@@ -114,7 +114,7 @@ export const PROJECTS: Project[] = [
     status: "PROTOTYPE",
 
     description:
-      "A semantic search engine for academic books that combines vector embeddings and large language models to enable natural-language exploration across educational resources and large collections of learning materials.",
+      "A semantic search engine for Islamic books and authentic references that combines vector embeddings and large language models (LLMs) to enable natural-language exploration, smart summaries, and keyword extraction across rich knowledge collections.",
 
     tech: [
       "React",
@@ -185,19 +185,19 @@ export const METRICS: Metric[] = [
     progressPercent: 95,
     readouts: [
       { label: "COMPLETED_MODULES", value: "14/14" },
-      { label: "REGIONAL_TRAFFIC", value: "High Intensity" }
+      { label: "REGIONAL_TRAFFIC", value: "60K+ Clicks" }
     ]
   },
   {
     id: "ANDROID_WELLBEING",
-    label: "Basira App (Digital Well-being)",
+    label: "Basira App (Digital Focus & Balance)",
     value: "> 100MB",
-    subValue: "ANDROID WELLBEING SYSTEM",
+    subValue: "ANDROID FOCUS & SHORTS BLOCKER",
     glowColor: "green",
     progressPercent: 90,
     readouts: [
-      { label: "SCREEN_MONITORING", value: "Live Refract" },
-      { label: "BACKGROUND_EFFICIENCY", value: "Minimal Impact" }
+      { label: "SHORTS_BLOCKING", value: "Real-Time" },
+      { label: "BATTERY_DRAIN", value: "Negligible" }
     ]
   }
 ];
@@ -337,10 +337,10 @@ export const TIMELINE_LOGS: TimelineLog[] = [
   {
     id: "basira-release",
     timestamp: "2025-12-15",
-    event: "BASIRA APP RELEASE",
+    event: "BASIRA APP LAUNCH (SHORTS BLOCKER)",
     category: "DEPLOYMENT",
     details:
-      "Released Basira, an Android digital wellbeing platform focused on helping users reduce unhealthy screen habits through intelligent monitoring, interventions, and behavioral insights."
+      "Launched Basira on Android, a specialized digital focus platform designed to block YouTube Shorts and digital distractions through customizable lockouts, app limits, and smart intervention features."
   },
 
   {
